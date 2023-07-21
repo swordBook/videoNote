@@ -14,6 +14,7 @@ const flash = require('express-flash');
 const path = require('path');
 const mongoose = require('mongoose');
 const passport = require('passport');
+const sass = require('node-sass-middleware');
 const multer = require('multer');
 
 const upload = multer({ dest: path.join(__dirname, 'uploads') });
@@ -41,7 +42,6 @@ const passportConfig = require('./config/passport');
  * Create Express server.
  */
 const app = express();
-console.log('Run this app using "npm start" to include sass/scss/css builds.');
 
 /**
  * Connect to MongoDB.
@@ -61,6 +61,10 @@ app.set('port', process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 app.use(compression());
+app.use(sass({
+  src: path.join(__dirname, 'public'),
+  dest: path.join(__dirname, 'public')
+}));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -133,9 +137,8 @@ app.post('/account/password', passportConfig.isAuthenticated, userController.pos
 app.post('/account/delete', passportConfig.isAuthenticated, userController.postDeleteAccount);
 app.get('/account/unlink/:provider', passportConfig.isAuthenticated, userController.getOauthUnlink);
 
-// Video Note
 app.post('/postvideo', videosummaryController.postvideo);
-app.post('/summary', videosummaryController.getSummarys);
+app.post('/summary', videosummaryController.getSummary);
 
 /**
  * API examples routes.
